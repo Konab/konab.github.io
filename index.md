@@ -1,37 +1,119 @@
-## Welcome to GitHub Pages
+# Introduction
 
-You can use the [editor on GitHub](https://github.com/Konab/education-docker.github.io/edit/master/index.md) to maintain and preview the content for your website in Markdown files.
+Стянуть образ из репозитория:
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
-
-### Markdown
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
+```shell
+docker pull [OPTIONS] NAME[:TAG|@DIGEST]
 ```
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+```shell
+docker run -rm parseq/hello-docker <message>
+```
 
-### Jekyll Themes
+- `-rm` -- удалит контейнер после запуска и отработки
+- `parseq/hello-docker` -- образ контейнера в docker hub
+- `<message>` -- сообщение (аргумент), которое отправляется в контейнер
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/Konab/education-docker.github.io/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+## Образы и контейнеры
 
-### Support or Contact
+```sequence
+Docker image -> Docker container: run
+Docker container --> Docker image: commit
+```
 
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+**Docker образ (image)** -- чертеж по которому будет построен контейнер
+
+**Docker контейнер** -- экземпляр образа
+
+`run` -- команда для превращения контейнера из образа
+
+[Docker run documentation]:https://docs.docker.com/engine/reference/run/
+
+[Docker run documentation](https://docs.docker.com/engine/reference/run/)
+
+## Команды
+
+| #             | image                                       | container                                                    |
+| ------------- | ------------------------------------------- | ------------------------------------------------------------ |
+| Название      | Образ                                       | Контейнер                                                    |
+| Полный список | `docker images`                             | `docker ps` -- полный список активных (запущенных) контейнеров<br/> `docker ps -a` -- полный список активных (запущенных) контейнеров |
+| Собрать       | `docker run` -- собрать контейнер из образа | `docker commit` -- собрать образ из контейнера               |
+| Удалить       | `docker rmi`                                | `docker rm`                                                  |
+
+
+
+## Режимы запуска контейнеров
+
+1. Контейнер запускается вместе с программой, после чего его можно удалить
+
+   ```shell
+   docker run --rm <image-name or image-id>
+   ```
+
+   `--rm` -- удалить после завершения работы контейнера
+
+2. Deamon -- программы, которые работают как сервисы (БД, Веб-сервера ...)
+
+   ```shell
+   docker run --rm --name <task-name> -it <image-name or image-id>
+   ```
+
+   `--rm` -- удалить после завершения работы контейнера
+
+   `--name` -- ключ, задает имя создаваемому контейнеру
+
+   `-it` -- запустить в интерактивном режиме
+
+   ```shell
+   docker run --rm --name autodrive-task -it ubuntu:14.04
+   ```
+
+3. Интерактивный режим -- Запускаем программу в контейнере, подключаемся к ней и получаем возможность подключить к ней терминал и напрямую взаимодействовать с этой программой (оболочка программной строки)
+
+   ```shell
+   docker run --rm -it <image-name or image-id>
+   ```
+
+   `--rm` -- удалить после завершения работы контейнера
+
+   `-it` - interactive terminal
+
+   ```shell
+   docker run --rm -it ubuntu:18.04
+   **Используется:**
+   ```
+
+   1. В качесте инструмента изоляции
+   2. Что бы не устанавливать зависимости
+   3. Отработка действий по созданию images (образов) 
+
+## Образ и контейнер с точки зрения файловой системы
+
+**Layered File System**
+
+Образ у файловой системы представляется совокупностью отдельных слоев и результ является продуктом агригации этих словев
+
+```shell
+docker pull ubuntu:15.04
+```
+
+![Снимок экрана 2019-11-13 в 15.22.38](/Users/konstantinnabatcikov/Desktop/Снимок экрана 2019-11-13 в 15.22.38.png)
+
+**Посмотреть слои образа:**
+
+```shell
+docker history NAME
+```
+
+**Слои образа** -- совокупность слоев предназначенных только для чтения
+
+**Слой контецнера** -- предназначен как для чтения, так и для записи
+
+![img-2](/Users/konstantinnabatcikov/Documents/education/docker/doc/img-2.jpg)
+
+При изменении какого-то файла, создается копия, над которой осуществляется манипуляция, оригинал при этом сохраняется на слоях образа
+
+**Подробнее:**
+
+- [Раз](https://medium.com/@jessgreb01/digging-into-docker-layers-c22f948ed612)
+- [Два](
